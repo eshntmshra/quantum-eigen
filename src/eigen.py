@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.linalg import eigh
 import argparse
+import os
 
 def build_2d_hamiltonian(N=20, potential='well'):
     """
@@ -101,6 +102,10 @@ if __name__ == '__main__':
     vals, vecs = solve_eigen(N=args.N, potential=args.potential, n_eigs=args.n_eigs)
     print(f"Lowest {args.n_eigs} eigenvalues:", vals)
 
-    if args.out:
-        np.savetxt(args.out, vals)
-        print(f"Saved to {args.out}")
+    if args.out is not None:
+        outfile = args.out
+    else:
+        os.makedirs('./../outputs', exist_ok=True)
+        outfile = f'./../outputs/eigs_N{args.N}.txt'
+    np.savetxt(outfile, vals)
+    print(f"Saved to {outfile}")    

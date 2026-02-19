@@ -97,6 +97,7 @@ if __name__ == '__main__':
     parser.add_argument('--potential', type=str,   default='well',   choices=['well', 'harmonic'], help='Potential type (default: well)')
     parser.add_argument('--n-eigs',    type=int,   default=5,        help='Number of eigenvalues to return (default: 5)')
     parser.add_argument('--out',       type=str,   default=None,     help='Output file to save eigenvalues')
+    parser.add_argument('--save-psi', action='store_true', help='Save ground state probability density')
     args = parser.parse_args()
 
     vals, vecs = solve_eigen(N=args.N, potential=args.potential, n_eigs=args.n_eigs)
@@ -109,3 +110,10 @@ if __name__ == '__main__':
         outfile = f'./../outputs/eigs_N{args.N}.txt'
     np.savetxt(outfile, vals)
     print(f"Saved to {outfile}")    
+
+    if args.save_psi:
+        psi = vecs[:, 0]                        # ground state eigenvector
+        psi_2d = psi.reshape(args.N, args.N)    # reshape to (N, N)
+        prob = np.abs(psi_2d)**2                # probability density |psi|^2
+        np.savetxt(f'./../outputs/psi_N{args.N}.txt', prob)
+        print(f"Saved ground state density to psi_N{args.N}.txt")

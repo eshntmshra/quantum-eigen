@@ -11,7 +11,7 @@ def build_2d_hamiltonian(N=20, potential='well', a=0.0, b=0.0):
     N : int
         Number of points in each dimension (N^2 total points).
     potential : str
-        Choose the potential. 'well' or 'harmonic' examples.
+        Choose the potential. 'well', 'harmonic', or 'double_well'.
     Returns
     -------
     H : ndarray of shape (N^2, N^2)
@@ -31,6 +31,10 @@ def build_2d_hamiltonian(N=20, potential='well', a=0.0, b=0.0):
             x = (i - N/2) * dx
             y = (j - N/2) * dx
             return 4. * (x**2 + y**2)
+        elif potential == 'double_well':
+            x = (i - N/2) * dx
+            y = (j - N/2) * dx
+            return 4. * (x**2 - 0.5)**2 + 4. * y**2
         else:
             return 0.
 
@@ -86,8 +90,8 @@ def solve_eigen(N=20, potential='well', n_eigs=None, a=0.0, b=0.0):
     # Sanity checks
     if not isinstance(N, int) or N <= 0:
         raise ValueError("N must be a positive integer")
-    if potential not in ('well', 'harmonic'):
-        raise ValueError("potential must be 'well' or 'harmonic'")
+    if potential not in ('well', 'harmonic', 'double_well'):
+        raise ValueError("potential must be 'well', 'harmonic', or 'double_well'")
     if n_eigs is not None:
         if not isinstance(n_eigs, int) or n_eigs <= 0:
             raise ValueError("n_eigs must be a positive integer")
@@ -109,13 +113,11 @@ def solve_eigen(N=20, potential='well', n_eigs=None, a=0.0, b=0.0):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='2D Hamiltonian Eigenvalue Solver')
-    parser.add_argument('--N',         type=int,   default=10,     help='Grid points per dimension (default: 10)')
-    parser.add_argument('--potential', type=str,   default='well', choices=['well', 'harmonic'], help='Potential type (default: well)')
-    parser.add_argument('--n-eigs',    type=int,   default=5,      help='Number of eigenvalues to return (default: 5)')
-    parser.add_argument('--a',         type=float, default=0.0,    help='Dirichlet BC coefficient a (default: 0)')
-    parser.add_argument('--b',         type=float, default=0.0,    help='Dirichlet BC coefficient b (default: 0)')
-    parser.add_argument('--out',       type=str,   default=None,   help='Output file to save eigenvalues')
-    parser.add_argument('--save-psi',  action='store_true',        help='Save ground state probability density')
+    parser.add_argument('--N',         type=int,   default=10,       help='Grid points per dimension (default: 10)')
+    parser.add_argument('--potential', type=str,   default='well',   choices=['well', 'harmonic'], help='Potential type (default: well)')
+    parser.add_argument('--n-eigs',    type=int,   default=5,        help='Number of eigenvalues to return (default: 5)')
+    parser.add_argument('--out',       type=str,   default=None,     help='Output file to save eigenvalues')
+    parser.add_argument('--save-psi', action='store_true', help='Save ground state probability density')
     args = parser.parse_args()
 
     vals, vecs = solve_eigen(N=args.N, potential=args.potential, n_eigs=args.n_eigs, a=args.a, b=args.b)
